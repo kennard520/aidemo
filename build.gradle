@@ -1,0 +1,92 @@
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '2.7.7'
+    id 'io.spring.dependency-management' version '1.1.7'
+//    id 'com.google.protobuf' version '0.9.4' // Protobuf 插件
+}
+
+group = 'org.ai'
+version = '0.0.1-SNAPSHOT'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
+
+repositories {
+    maven { url 'https://maven.aliyun.com/repository/public' }
+    mavenCentral()
+    maven { url 'https://repo.spring.io/milestone' }
+    maven { url 'https://repo.spring.io/snapshot' }
+    maven {
+        name = 'Central Portal Snapshots'
+        url = 'https://central.sonatype.com/repository/maven-snapshots/'
+    }
+}
+
+dependencies {
+    implementation 'io.grpc:grpc-inprocess:1.60.0'  // 关键依赖
+    // Lombok 核心依赖
+    compileOnly 'org.projectlombok:lombok:1.18.30'
+    annotationProcessor 'org.projectlombok:lombok:1.18.30'
+    implementation ('org.springframework.boot:spring-boot-starter-web')
+
+    // 工具
+    compileOnly 'javax.annotation:javax.annotation-api:1.3.2'
+    implementation 'org.springframework.boot:spring-boot-starter-webflux'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    implementation ('io.github.pig-mesh.ai:deepseek-spring-boot-starter:1.4.7')
+    implementation platform("org.springframework.ai:spring-ai-bom:1.0.0-SNAPSHOT")
+    // Replace the following with the starter dependencies of specific modules you wish to use
+    implementation 'org.springframework.ai:spring-ai-openai'
+    // Protobuf 运行时库
+
+    // gRPC 核心库
+    implementation 'io.grpc:grpc-netty:1.60.0'      // 网络传输
+    implementation 'io.grpc:grpc-protobuf:1.60.0'   // Protobuf 支持
+    implementation 'io.grpc:grpc-stub:1.60.0'       // 客户端存根
+
+    // 其他工具库（可选）
+    compileOnly 'org.apache.tomcat:annotations-api:6.0.53' // 解决 @Generated 注解问题
+    annotationProcessor 'com.google.protobuf:protobuf-java-util:4.30.2'
+    implementation 'net.devh:grpc-spring-boot-starter:2.15.0.RELEASE'
+    // https://mvnrepository.com/artifact/com.google.protobuf/protobuf-java
+    implementation("com.google.protobuf:protobuf-java:4.30.2")
+
+}
+//protobuf {
+//    generateProtoTasks {
+//        // 删除重复的配置，保留一个 all().each 块
+//        all().each { task ->
+//            task.builtins {
+//                java {} // 只保留一个java生成器
+//            }
+//            task.plugins {
+//                grpc {} // 只保留一个grpc生成器
+//            }
+//        }
+//    }
+//}
+
+//sourceSets {
+//    main {
+//        proto {
+//            srcDir 'src/main/proto'  // 确保proto文件在此目录
+//        }
+//        java {
+//            srcDirs 'build/generated/source/proto/main/grpc'
+//            srcDirs 'build/generated/source/proto/main/java'
+//        }
+//    }
+//}
+//
+//tasks.named('compileJava').configure {
+//    dependsOn 'generateProto'
+//}
+
+
+tasks.named('test') {
+    useJUnitPlatform()
+}

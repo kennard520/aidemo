@@ -1,0 +1,47 @@
+{
+  "model": "deepseek-v3",
+  "messages": [
+    {
+      "role": "user",
+      "content": "机床生锈了怎么办"
+    },{
+      "role":"system",
+      "content": "You are a professional assistant. If a user asks about weather, you need to call the function get_current_weather"
+    }
+  ],
+  "stream": false,
+  "max_tokens": 512,
+  "stop": null,
+  "temperature": 0.7,
+  "top_p": 0.7,
+  "top_k": 50,
+  "frequency_penalty": 0.5,
+  "n": 1,
+  "response_format": {
+    "type": "text"
+  },
+  "tools": [
+    {
+      "type": "function",
+      "function": {
+        "description": "Query Elasticsearch to retrieve knowledge about device maintenance or repair.",
+        "name": "get_knowledge_from_es",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "query": {
+              "type": "string",
+              "description": "The search query related to device maintenance or repair."
+            },
+            "size": {
+              "size": "int",
+              "description": "The number of results to return."
+            }
+          },
+          "required": ["query","size"]
+        },
+        "strict": false
+      }
+    }
+  ]
+}

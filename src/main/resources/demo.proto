@@ -1,0 +1,90 @@
+syntax = "proto3";
+package chat.v1;
+option java_package = "org.ai.aidemo.proto";
+option java_multiple_files = true;
+message GrpcChatRequest{
+  string query = 1;
+  optional  string session = 2;
+  optional GrpcToolCallVo toolCallVo = 3;
+  bool isToolCallInProgress = 4;
+  bool isToolCallFinished = 5;
+  message GrpcToolCallVo{
+    optional string toolCallId = 1;
+    optional string functionName = 2;
+    optional string toolArguments = 3;
+    optional string toolCallResult = 4;
+  }
+}
+
+message GrpcChatCompletionResponse{
+  optional string id = 1;
+  int32 created = 2;
+  optional string model = 3;
+  repeated GrpcChatCompletionChoice choices = 4;
+  optional GrpcUsage usage = 5;
+  optional string systemFingerprint = 6;
+  optional string serviceTier = 7;
+  message GrpcChatCompletionChoice{
+    int32 index = 1;
+    optional GrpcAssistantMessage message = 2;
+    optional GrpcDelta delta = 3;
+    optional string finishReason = 4;
+    message GrpcAssistantMessage{
+      optional GrpcRole role = 1;
+      optional string content = 2;
+      optional string reasoningContent = 3;
+      optional string name = 4;
+      repeated GrpcToolCall toolCalls = 5;
+      optional bool refusal = 6;
+      optional GrpcToolCall.GrpcFunctionCall functionCall = 7;
+    }
+    message GrpcDelta{
+      optional GrpcRole role = 1;
+      optional string content = 2;
+      optional string reasoningContent = 3;
+      repeated GrpcToolCall toolCalls = 4;
+      optional GrpcToolCall.GrpcFunctionCall functionCall = 5;
+    }
+  }
+
+  message GrpcToolCall{
+
+    optional string id = 1;
+    optional int32 index = 2;
+    optional GrpcToolType type = 3;
+    optional  GrpcFunctionCall function = 4;
+    enum GrpcToolType {
+      UNKNOWN = 0;  // 必须包含一个0值（默认值）
+      FUNCTION = 1;
+    }
+    message GrpcFunctionCall{
+      optional string name = 1;
+      optional string arguments = 2;
+    }
+  }
+  enum GrpcRole {
+    UNKNOWN = 0;
+    SYSTEM = 1;  // 必须包含一个0值（默认值）
+    USER = 2;
+    ASSISTANT = 3;
+    TOOL = 4;
+    FUNCTION = 5;
+  }
+  message GrpcUsage{
+    optional int32 totalTokens = 1;
+    optional int32 promptTokens = 2;
+    optional GrpcPromptTokensDetails promptTokensDetails = 3;
+    optional int32 completionTokens = 4;
+    optional GrpcCompletionTokensDetails completionTokensDetails = 5;
+    message GrpcPromptTokensDetails{
+      optional int32 cachedTokens = 1;
+    }
+    message GrpcCompletionTokensDetails{
+      optional int32 reasoningTokens = 1;
+    }
+  }
+
+}
+service ChatService{
+  rpc ChatStream(GrpcChatRequest) returns (stream GrpcChatCompletionResponse);
+}

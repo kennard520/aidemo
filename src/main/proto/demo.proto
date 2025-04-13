@@ -1,0 +1,90 @@
+syntax = "proto3";
+package chat.v1;
+option java_package = "org.ai.aidemo.proto";
+option java_multiple_files = true;
+message ChatRequest{
+  string query = 1;
+  optional  string session = 2;
+  optional ToolCallVo toolCallVo = 3;
+  bool isToolCallInProgress = 4;
+  bool isToolCallFinished = 5;
+  message ToolCallVo{
+    optional string toolCallId = 1;
+    optional string functionName = 2;
+    optional string toolArguments = 3;
+    optional string toolCallResult = 4;
+  }
+}
+
+message ChatCompletionResponse{
+  optional string id = 1;
+  int32 created = 2;
+  optional string model = 3;
+  repeated ChatCompletionChoice choices = 4;
+  optional Usage usage = 5;
+  optional string systemFingerprint = 6;
+  optional string serviceTier = 7;
+  message ChatCompletionChoice{
+    int32 index = 1;
+    optional AssistantMessage message = 2;
+    optional Delta delta = 3;
+    optional string finishReason = 4;
+    message AssistantMessage{
+      optional Role role = 1;
+      optional string content = 2;
+      optional string reasoningContent = 3;
+      optional string name = 4;
+      repeated ToolCall toolCalls = 5;
+      optional bool refusal = 6;
+      optional ToolCall.FunctionCall functionCall = 7;
+    }
+    message Delta{
+      optional Role role = 1;
+      optional string content = 2;
+      optional string reasoningContent = 3;
+      repeated ToolCall toolCalls = 4;
+      optional ToolCall.FunctionCall functionCall = 5;
+    }
+  }
+
+  message ToolCall{
+
+    optional string id = 1;
+    optional int32 index = 2;
+    optional ToolType type = 3;
+    optional  FunctionCall function = 4;
+    enum ToolType {
+      UNKNOWN = 0;  // 必须包含一个0值（默认值）
+      FUNCTION = 1;
+    }
+    message FunctionCall{
+      optional string name = 1;
+      optional string arguments = 2;
+    }
+  }
+  enum Role {
+    UNKNOWN = 0;
+    SYSTEM = 1;  // 必须包含一个0值（默认值）
+    USER = 2;
+    ASSISTANT = 3;
+    TOOL = 4;
+    FUNCTION = 5;
+  }
+  message Usage{
+    optional int32 totalTokens = 1;
+    optional int32 promptTokens = 2;
+    optional PromptTokensDetails promptTokensDetails = 3;
+    optional int32 completionTokens = 4;
+    optional CompletionTokensDetails completionTokensDetails = 5;
+    message PromptTokensDetails{
+      optional int32 cachedTokens = 1;
+    }
+    message CompletionTokensDetails{
+      optional int32 reasoningTokens = 1;
+    }
+  }
+
+}
+service ChatService{
+  rpc ChatStream(ChatRequest) returns (stream ChatCompletionResponse);
+}

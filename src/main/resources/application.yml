@@ -1,0 +1,27 @@
+
+#deepseek:
+#  api-key: sk-kwrdxarfftrlwetitvthsbydrmjzmmfpwvifpdpiyiqmnumq  # 必填项：你的 API 密钥
+#  model: deepseek-ai/DeepSeek-V3
+#  base-url: https://api.siliconflow.cn/v1
+## 可选，默认为官方 API 地址
+#embedding:
+#  api-key: sk-kwrdxarfftrlwetitvthsbydrmjzmmfpwvifpdpiyiqmnumq  # 必填项：你的 API 密钥
+#  model: deepseek-ai/DeepSeek-V3
+#  base-url: https://api.siliconflow.cn/v1
+
+server:
+  port: 8080  # HTTP端口
+
+grpc:
+  server:
+    port: 9090  # gRPC端口
+    enable-reflection: true # 启用反射测试
+    in-process-name: in-process-server  # 关键！指定内嵌服务器名称
+
+  client:
+    chat-service:  # 必须与@GrpcClient("chat-service")中的名称一致
+      address: 'in-process:in-process-server'  # 使用in-process协议
+      enableKeepAlive: true
+      negotiationType: plaintext  # 测试环境可用，生产环境建议用tls
+
+#protoc --proto_path=src/main/resources --java_out=src/main/java --plugin=protoc-gen-grpc-java=C:\Users\42918\Downloads\protoc-30.2-win64\bin\protoc-gen-grpc-java.exe --grpc-java_out=src/main/java src/main/resources/demo.proto
